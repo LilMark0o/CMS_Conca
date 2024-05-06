@@ -1,0 +1,34 @@
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <div class="card text-center">
+        <div class="card-header"><b>{{producto.nombre}}</b></div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">Precio: {{producto.precio}}</li>
+          <li class="list-group-item">
+            Cada cuantos días se debe pedir: {{producto.cadaCuantosDias}}
+          </li>
+          <li class="list-group-item">
+            Cantidad de productos por orden: {{producto.cantidadPorOrden}}
+          </li>
+          <li class="list-group-item">
+            Último Pedido: {{producto.ultimoPedido}}
+          </li>
+          <li class="list-group-item">
+            Nombre proveedor: {{producto.proveedor.nombre}}
+          </li>
+          <li class="list-group-item">
+            <a href="{%url 'pedirProducto' producto.id%}" class="btn btn-light"
+              >Pedir
+            </a>
+          </li>
+          <li class="list-group-item">
+            Dirección proveedor: {{producto.proveedor.direccion}}
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,5 +1,45 @@
 {% extends "base.html" %} {% block content %}
-<div class="col-md-6 offset-md-3">
-  <h1>Welcome {{ user.first_name }}</h1>
+<div class="container">
+  <div class="row">
+    <div class="col-md-10 offset-md-1">
+      {% if productos %}
+      <h1 class="text-center">Productos disponibles</h1>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Precio</th>
+              <th>Cada cuántos días se debe pedir</th>
+              <th>Cantidad de productos por orden</th>
+              <th>Último Pedido</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for producto in productos %}
+            <tr>
+              <td>{{ producto.nombre }}</td>
+              <td>{{ producto.precio }}</td>
+              <td>{{ producto.cadaCuantosDias }}</td>
+              <td>{{ producto.cantidadPorOrden }}</td>
+              <td>{{ producto.ultimoPedido }}</td>
+              <td>
+                <a href="{% url 'producto' producto.id %}" class="btn btn-light"
+                  >Ver detalle</a
+                >
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="alert alert-warning text-center" role="alert">
+        No hay productos disponibles
+      </div>
+      {% endif %}
+    </div>
+  </div>
 </div>
 {% endblock %}
