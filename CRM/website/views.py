@@ -1,3 +1,5 @@
+from .models import Producto
+from django.shortcuts import render, redirect
 import datetime
 from django.shortcuts import redirect, render
 from django.contrib.auth import authenticate, login, logout
@@ -42,10 +44,15 @@ def logout_user(request):
 def register_user(request):
     if request.method == 'POST':
         username = request.POST.get('username', '')
-        password = request.POST.get('password', '')
+        print("Username: ", username)
+        password = request.POST.get('password1', '')
+        print("Password: ", password)
         password2 = request.POST.get('password2', '')
+        print("Password2: ", password2)
         email = request.POST.get('email', '')
+        print("Email: ", email)
         name = request.POST.get('name', '')
+        print("Name: ", name)
         if password == password2:
             if User.objects.filter(username=username).exists():
                 messages.error(request, 'Ese nombre de usuario ya está en uso')
@@ -130,3 +137,71 @@ def sendEmail(user, producto):
     except Exception as e:
         print(e)
         return False
+
+
+def borrarPedido(request, pk):
+    if request.user.is_authenticated:
+        user = request.user
+        producto = Producto.objects.get(id=pk)
+        if user == producto.userAsignado:
+            producto.delete()
+            messages.success(request, 'Pedido borrado exitosamente')
+            return redirect('home')
+        else:
+            messages.error(
+                request, 'No tienes permiso para borrar este pedido')
+            return redirect('home')
+    else:
+        messages.error(request, 'Necesitas iniciar sesión')
+        return redirect('home')
+
+
+def duplicarPedido(request, pk):
+    if request.user.is_authenticated:
+        user = request.user
+        producto = Producto.objects.get(id=pk)
+        if user == producto.userAsignado:
+            producto.pk = None
+            producto.nombre = producto.nombre + ' (Copia)'
+            producto.save()
+            messages.success(request, 'Pedido duplicado exitosamente')
+            return redirect('home')
+        else:
+            messages.error(
+                request, 'No tienes permiso para duplicar este pedido')
+            return redirect('home')
+    else:
+        messages.error(request, 'Necesitas iniciar sesión')
+        return redirect('home')
+
+
+def editarPedido(request, pk):
+    print("Editing producto")
+    if request.user.is_authenticated:
+        user = request.user
+        producto = Producto.objects.get(id=pk)
+        if user == producto.userAsignado:
+            if request.method == 'POST':
+                producto.nombre = request.POST['nombre']
+                producto.precio = request.POST['precio']
+                producto.descripcion = request.POST['descripcion']
+                producto.cantidadPorOrden = request.POST['cantidadPorOrden']
+                producto.cadaCuantosDias = request.POST['cadaCuantosDias']
+                fechaParametro = request.POST['ultimoPedido']
+                if fechaParametro != '':
+                    producto.ultimoPedido = datetime.datetime.strptime(
+                        fechaParametro, '%Y-%m-%d')
+                    producto.ultimoPedido = producto.ultimoPedido.date()
+                producto.proveedor = Proveedor.objects.get(
+                    id=request.POST['proveedor'])
+                producto.save()
+                messages.success(request, 'Producto editado exitosamente')
+                return redirect('home')
+            return render(request, 'editarProducto.html', {'producto': producto, 'proveedores': Proveedor.objects.all()})
+        else:
+            messages.error(
+                request, 'No tienes permiso para editar este producto')
+            return redirect('home')
+    else:
+        messages.error(request, 'Necesitas iniciar sesión')
+        return redirect('home')

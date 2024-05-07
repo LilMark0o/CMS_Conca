@@ -19,14 +19,38 @@
             Nombre proveedor: {{producto.proveedor.nombre}}
           </li>
           <li class="list-group-item">
-            <a href="{%url 'pedirProducto' producto.id%}" class="btn btn-light"
+            Dirección proveedor: {{producto.proveedor.direccion}}
+          </li>
+          <li class="list-group-item">
+            <a
+              class="btn btn-light"
+              href="{% url 'pedirProducto' producto.id  %}"
               >Pedir
             </a>
           </li>
-          <li class="list-group-item">
-            Dirección proveedor: {{producto.proveedor.direccion}}
-          </li>
         </ul>
+      </div>
+      <div class="mt-3">
+        <form
+          action="{% url 'borrarPedido' producto.id %}"
+          method="post"
+          style="display: inline-block"
+        >
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">Borrar Pedido</button>
+        </form>
+        <form
+          action="{% url 'duplicarPedido' producto.id %}"
+          method="post"
+          style="display: inline-block"
+        >
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary">Duplicar Pedido</button>
+        </form>
+
+        <a href="{% url 'editarPedido' producto.id %}" class="btn btn-light">
+          Editar Pedido
+        </a>
       </div>
     </div>
   </div>
