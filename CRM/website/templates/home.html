@@ -2,8 +2,13 @@
 <div class="container">
   <div class="row justify-content-center align-items-center">
     <div class="col-md-10">
-      <h1 class="text-center">Productos pendientes por pedir</h1>
+      {%if course_list%}
+      <h1 class="text-center">Porcentajes de pedidos por producto</h1>
+      {%include "graph.html"%}
+      
+      {%endif%}
       {% if productosPorPedir %}
+      <h1 class="text-center">Productos pendientes por pedir</h1>
       <div class="table-responsive text-center">
         <table class="table table-striped text-center">
           <thead>
@@ -37,13 +42,10 @@
         </table>
       </div>
       {% else %} {% if productos %}
+      <h1 class="text-center">Productos pendientes por pedir</h1>
+
       <div class="alert alert-warning text-center" role="alert">
         ¡Estás al día ☀️, no tienes productos pendientes por pedir!
-      </div>
-      {% else %}
-      <div class="alert alert-warning text-center" role="alert">
-        No tienes productos registrados, por eso no tienes productos pendientes
-        por pedir
       </div>
 
       {% endif %}{% endif %}

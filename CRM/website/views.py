@@ -32,6 +32,7 @@ def home(request):
         historial = historialPedidos.objects.filter(
             userAsignado=request.user).order_by('-fecha')
         productosPorPedir = []
+
         for producto in productos:
             fechaPedido = producto.ultimoPedido
             fechaActual = datetime.datetime.now()
@@ -43,8 +44,12 @@ def home(request):
                 diferencia = fechaActual - fechaPedido
                 if diferencia.days > producto.cadaCuantosDias:
                     productosPorPedir.append(producto)
-
-        return render(request, 'home.html', {'productos': productos, 'proveedores': proveedores, 'productosPorPedir': productosPorPedir, 'historial': historial})
+        pedidos = pedidosGraph(request)
+        contextForNow = {'productos': productos, 'proveedores': proveedores,
+                         'productosPorPedir': productosPorPedir, 'historial': historial}
+        if len(pedidos) > 0:
+            contextForNow.update(pedidos)
+        return render(request, 'home.html', contextForNow)
     return render(request, 'homeNoLog.html', {})
 
 
@@ -385,3 +390,34 @@ def nuevoProveedor(request):
     else:
         messages.error(request, 'Necesitas iniciar sesión')
         return redirect('home')
+
+
+def pedidosGraph(request):
+    user = request.user
+    historial = historialPedidos.objects.filter(
+        userAsignado=user).order_by('-fecha')
+    pedidosList = []
+    pedidosDict = {}
+    for pedido in historial:
+        if pedido.producto.nombre not in pedidosList:
+            pedidosList.append(pedido.producto.nombre)
+        if pedido.producto.nombre in pedidosDict:
+            pedidosDict[pedido.producto.nombre] += pedido.cantidad
+        else:
+            pedidosDict[pedido.producto.nombre] = pedido.cantidad
+    pedidosListOrderedCool = []
+    for parameter in pedidosList:
+        pedidosListOrderedCool.append(pedidosDict[parameter])
+    cs_no = 2
+    ce_no = 3
+    se_no = 6
+    sec_no = 2
+    number_list = [cs_no, ce_no, se_no, sec_no]
+    context = {'course_list': pedidosList,
+               'number_list': pedidosListOrderedCool}
+    if len(pedidosList) == 0:
+        return {}
+    else:
+        return context
+
+    return render(request, 'officer_home.html', context)

@@ -129,6 +129,8 @@ STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
 STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'static', 'media')
 DATA_ROOT = os.path.join(PROJECT_ROOT, 'static', 'data')
+JS_ROOT = os.path.join(PROJECT_ROOT, 'static', 'js')
+VENDOR_ROOT = os.path.join(PROJECT_ROOT, 'static', 'vendor')
 # MEDIA_URL = '/static/media/'
 
 # Extra places for collectstatic to find static files.
@@ -136,6 +138,8 @@ STATICFILES_DIRS = (
     os.path.join(PROJECT_ROOT, 'static'),
     os.path.join(PROJECT_ROOT, 'static', 'media'),
     os.path.join(PROJECT_ROOT, 'static', 'data'),
+    os.path.join(PROJECT_ROOT, 'static', 'js'),
+    os.path.join(PROJECT_ROOT, 'static', 'vendor'),
 )
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
