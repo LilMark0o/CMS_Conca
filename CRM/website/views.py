@@ -1,4 +1,4 @@
-from .models import Producto
+from .models import Producto, historialPedidos
 from django.shortcuts import render, redirect
 import datetime
 from django.shortcuts import redirect, render
@@ -29,6 +29,8 @@ def home(request):
         # Fetch only the products where userAsignado is the current user
         productos = Producto.objects.filter(userAsignado=request.user)
         proveedores = Proveedor.objects.filter(userAsignado=request.user)
+        historial = historialPedidos.objects.filter(
+            userAsignado=request.user).order_by('-fecha')
         productosPorPedir = []
         for producto in productos:
             fechaPedido = producto.ultimoPedido
@@ -42,7 +44,7 @@ def home(request):
                 if diferencia.days > producto.cadaCuantosDias:
                     productosPorPedir.append(producto)
 
-        return render(request, 'home.html', {'productos': productos, 'proveedores': proveedores, 'productosPorPedir': productosPorPedir})
+        return render(request, 'home.html', {'productos': productos, 'proveedores': proveedores, 'productosPorPedir': productosPorPedir, 'historial': historial})
     return render(request, 'homeNoLog.html', {})
 
 
@@ -121,6 +123,9 @@ def pedirProducto(request, pk):
                 messages.success(request, 'Producto pedido exitosamente')
                 producto.ultimoPedido = datetime.datetime.now()
                 producto.save()
+                historial = historialPedidos.objects.create(
+                    fecha=datetime.datetime.now(), cantidad=producto.cantidadPorOrden, producto=producto, userAsignado=user)
+                historial.save()
                 return redirect('home')
             else:
                 messages.error(request, 'No se pudo enviar el correo')
@@ -246,7 +251,7 @@ def editarPedido(request, pk):
                 producto.save()
                 messages.success(request, 'Producto editado exitosamente')
                 return redirect('home')
-            return render(request, 'editarProducto.html', {'producto': producto, 'proveedores': Proveedor.objects.all()})
+            return render(request, 'editarProducto.html', {'producto': producto, 'proveedores': Proveedor.objects.filter(userAsignado=user)})
         else:
             messages.error(
                 request, 'No tienes permiso para editar este producto')

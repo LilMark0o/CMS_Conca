@@ -36,12 +36,19 @@
           </tbody>
         </table>
       </div>
-      {% else %}
+      {% else %} {% if productos %}
       <div class="alert alert-warning text-center" role="alert">
         ¡Estás al día ☀️, no tienes productos pendientes por pedir!
       </div>
-      {% endif %} {% if productos %}
+      {% else %}
+      <div class="alert alert-warning text-center" role="alert">
+        No tienes productos registrados, por eso no tienes productos pendientes
+        por pedir
+      </div>
+
+      {% endif %}{% endif %}
       <h1 class="text-center">Productos</h1>
+      {% if productos %}
       <div class="table-responsive text-center">
         <table class="table table-striped text-center">
           <thead>
@@ -74,10 +81,87 @@
       </div>
       {% else %}
       <div class="alert alert-warning text-center" role="alert">
-        ¡Estás al día ☀️, no tienes productos pendientes por pedir!
+        No tienes productos registrados, ¡agrega uno!
+      </div>
+      <div class="text-center">
+        <!-- Wrap the button in a div with text-center class -->
+        <a href="{% url 'nuevoProducto' %}" class="btn btn-primary"
+          >Crear producto</a
+        >
       </div>
       {% endif %}
+      <h1 class="text-center">Proveedores</h1>
+      {% if proveedores %}
+      <div class="table-responsive text-center">
+        <table class="table table-striped text-center">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Correo</th>
+              <th>Teléfono</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for proveedor in proveedores %}
+            <tr>
+              <td>{{ proveedor.nombre }}</td>
+              <td>{{ proveedor.email }}</td>
+              <td>{{ proveedor.telefono }}</td>
+              <td>
+                <a
+                  href="{% url 'proveedor' proveedor.id %}"
+                  class="btn btn-light"
+                  >Ver detalle</a
+                >
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+        {% else %}
+        <div class="alert alert-warning text-center" role="alert">
+          No tienes proveedores registrados, ¡agrega uno!
+        </div>
+        <div class="text-center">
+          <a href="{% url 'nuevoProveedor' %}" class="btn btn-primary"
+            >Crear proveedor</a
+          >
+        </div>
+
+        {% endif %}
+        <h1 class="text-center">Historial de pedidos</h1>
+        {%if historial%}
+        <div class="table-responsive text-center">
+          <table class="table table-striped text-center">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Proveedor</th>
+                <th>Cantidad</th>
+                <th>Fecha de pedido</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for pedido in historial %}
+              <tr>
+                <td>{{ pedido.producto.nombre }}</td>
+                <td>{{ pedido.producto.proveedor.nombre }}</td>
+                <td>{{ pedido.cantidad }}</td>
+                <td>{{ pedido.fecha }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="alert alert-warning text-center" role="alert">
+          No tienes historial de pedidos, ¡Pide!
+        </div>
+        {% endif %}
+      </div>
     </div>
+    {% endblock %}
   </div>
 </div>
-{% endblock %}

@@ -16,17 +16,6 @@ class Proveedor(models.Model):
         return (f"{self.nombre} - {self.email} - {self.telefono}")
 
 
-# class UserProfile(models.Model):
-#     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
-#     telefono = models.CharField(max_length=50)
-#     direccion = models.CharField(max_length=50)
-#     ciudad = models.CharField(max_length=50)
-#     pais = models.CharField(max_length=50)
-
-#     def __str__(self):
-#         return self.user.username
-
-
 class Producto(models.Model):
     nombre = models.CharField(max_length=50)
     precio = models.FloatField()
@@ -41,3 +30,13 @@ class Producto(models.Model):
 
     def __str__(self):
         return self.nombre
+
+
+class historialPedidos(models.Model):
+    fecha = models.DateField()
+    cantidad = models.IntegerField()
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    userAsignado = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
+
+    def __str__(self):
+        return (f"{self.fecha} - {self.cantidad} - {self.producto}")
