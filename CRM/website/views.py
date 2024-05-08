@@ -28,8 +28,21 @@ def home(request):
     elif request.user.is_authenticated:
         # Fetch only the products where userAsignado is the current user
         productos = Producto.objects.filter(userAsignado=request.user)
-        proveedores = Proveedor.objects.all()
-        return render(request, 'home.html', {'productos': productos, 'proveedores': proveedores})
+        proveedores = Proveedor.objects.filter(userAsignado=request.user)
+        productosPorPedir = []
+        for producto in productos:
+            fechaPedido = producto.ultimoPedido
+            fechaActual = datetime.datetime.now()
+            if fechaPedido is not None:
+                # Convert fechaPedido to datetime if it's a date
+                if isinstance(fechaPedido, datetime.date):
+                    fechaPedido = datetime.datetime.combine(
+                        fechaPedido, datetime.datetime.min.time())
+                diferencia = fechaActual - fechaPedido
+                if diferencia.days > producto.cadaCuantosDias:
+                    productosPorPedir.append(producto)
+
+        return render(request, 'home.html', {'productos': productos, 'proveedores': proveedores, 'productosPorPedir': productosPorPedir})
     return render(request, 'homeNoLog.html', {})
 
 
@@ -156,6 +169,23 @@ def borrarPedido(request, pk):
         return redirect('home')
 
 
+def borrarProveedor(request, pk):
+    if request.user.is_authenticated:
+        user = request.user
+        proveedor = Proveedor.objects.get(id=pk)
+        if user == proveedor.userAsignado:
+            proveedor.delete()
+            messages.success(request, 'Proveedor borrado exitosamente')
+            return redirect('proveedores')
+        else:
+            messages.error(
+                request, 'No tienes permiso para borrar este proveedor')
+            return redirect('proveedores')
+    else:
+        messages.error(request, 'Necesitas iniciar sesión')
+        return redirect('proveedores')
+
+
 def duplicarPedido(request, pk):
     if request.user.is_authenticated:
         user = request.user
@@ -173,6 +203,25 @@ def duplicarPedido(request, pk):
     else:
         messages.error(request, 'Necesitas iniciar sesión')
         return redirect('home')
+
+
+def duplicarProveedor(request, pk):
+    if request.user.is_authenticated:
+        user = request.user
+        proveedor = Proveedor.objects.get(id=pk)
+        if user == proveedor.userAsignado:
+            proveedor.pk = None
+            proveedor.nombre = proveedor.nombre + ' (Copia)'
+            proveedor.save()
+            messages.success(request, 'Proveedor duplicado exitosamente')
+            return redirect('proveedores')
+        else:
+            messages.error(
+                request, 'No tienes permiso para duplicar este proveedor')
+            return redirect('proveedores')
+    else:
+        messages.error(request, 'Necesitas iniciar sesión')
+        return redirect('proveedores')
 
 
 def editarPedido(request, pk):
@@ -202,6 +251,132 @@ def editarPedido(request, pk):
             messages.error(
                 request, 'No tienes permiso para editar este producto')
             return redirect('home')
+    else:
+        messages.error(request, 'Necesitas iniciar sesión')
+        return redirect('home')
+
+
+def editarProveedor(request, pk):
+    if request.user.is_authenticated:
+        user = request.user
+        proveedor = Proveedor.objects.get(id=pk)
+        if user == proveedor.userAsignado:
+            if request.method == 'POST':
+                proveedor.nombre = request.POST['nombre']
+                proveedor.direccion = request.POST['direccion']
+                proveedor.ciudad = request.POST['ciudad']
+                proveedor.telefono = request.POST['telefono']
+                proveedor.email = request.POST['email']
+                proveedor.save()
+                messages.success(request, 'Proveedor editado exitosamente')
+                return redirect('proveedores')
+            return render(request, 'editarProveedor.html', {'proveedor': proveedor})
+        else:
+            messages.error(
+                request, 'No tienes permiso para editar este proveedor')
+            return redirect('proveedores')
+    else:
+        messages.error(request, 'Necesitas iniciar sesión')
+        return redirect('home')
+
+
+def nuevoPedido(request):
+    if request.user.is_authenticated:
+        user = request.user
+        proveedores = Proveedor.objects.filter(userAsignado=user)
+        print(len(proveedores))
+        if request.method == 'POST':
+            nombre = request.POST['nombre']
+            precio = request.POST['precio']
+            descripcion = request.POST['descripcion']
+            cantidadPorOrden = request.POST['cantidadPorOrden']
+            cadaCuantosDias = request.POST['cadaCuantosDias']
+            fechaParametro = request.POST['ultimoPedido']
+            if fechaParametro != '':
+                fechaParametro = datetime.datetime.strptime(
+                    fechaParametro, '%Y-%m-%d')
+                fechaParametro = fechaParametro.date()
+            proveedor = Proveedor.objects.get(id=request.POST['proveedor'])
+            if (proveedor.userAsignado != user):
+                messages.error(
+                    request, 'No tienes permiso para crear un pedido para este proveedor')
+                return redirect('home')
+            elif proveedor is None:
+                messages.error(
+                    request, 'El proveedor seleccionado no existe')
+                return redirect('home')
+
+            producto = Producto.objects.create(
+                nombre=nombre, precio=precio, descripcion=descripcion, cantidadPorOrden=cantidadPorOrden, cadaCuantosDias=cadaCuantosDias, ultimoPedido=fechaParametro, proveedor=proveedor, userAsignado=user)
+            producto.save()
+            messages.success(request, 'Producto creado exitosamente')
+            return redirect('home')
+        if len(proveedores) == 0:
+            messages.error(
+                request, 'No tienes proveedores creados, no puedes crear un producto')
+            return redirect('home')
+        return render(request, 'nuevoProducto.html', {'proveedores': proveedores})
+    else:
+        messages.error(request, 'Necesitas iniciar sesión')
+        return redirect('home')
+
+
+def proveedores(request):
+    if request.user.is_authenticated:
+        user = request.user
+        proveedores = Proveedor.objects.filter(userAsignado=user)
+        if len(proveedores) > 0:
+            return render(request, 'proveedores.html', {'proveedores': proveedores})
+        else:
+            return render(request, 'proveedores.html', {'proveedores': None})
+    else:
+        messages.error(request, 'Necesitas iniciar sesión')
+        return redirect('home')
+
+
+def productos(request):
+    if request.user.is_authenticated:
+        user = request.user
+        productos = Producto.objects.filter(userAsignado=user)
+        if len(productos) > 0:
+            return render(request, 'productos.html', {'productos': productos})
+        else:
+            return render(request, 'productos.html', {'productos': None})
+    else:
+        messages.error(request, 'Necesitas iniciar sesión')
+        return redirect('home')
+
+
+def proveedor(request, pk):
+    if request.user.is_authenticated:
+        user = request.user
+        proveedor = Proveedor.objects.get(id=pk)
+        if user == proveedor.userAsignado:
+            return render(request, 'proveedor.html', {'proveedor': proveedor})
+        else:
+            messages.error(
+                request, 'No tienes permiso para ver este proveedor')
+            return redirect('proveedores')
+    else:
+        messages.error(request, 'Necesitas iniciar sesión')
+        return redirect('home')
+
+
+def nuevoProveedor(request):
+    if request.user.is_authenticated:
+        user = request.user
+        if request.method == 'POST':
+            nombre = request.POST['nombre']
+            direccion = request.POST['direccion']
+            ciudad = request.POST['ciudad']
+            telefono = request.POST['telefono']
+            email = request.POST['email']
+            proveedor = Proveedor.objects.create(
+                nombre=nombre, direccion=direccion, ciudad=ciudad, telefono=telefono, email=email, userAsignado=user)
+            proveedor.save()
+            messages.success(request, 'Proveedor creado exitosamente')
+            return redirect('proveedores')
+        return render(request, 'nuevoProveedor.html', {})
     else:
         messages.error(request, 'Necesitas iniciar sesión')
         return redirect('home')

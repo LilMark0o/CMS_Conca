@@ -2,8 +2,46 @@
 <div class="container">
   <div class="row justify-content-center align-items-center">
     <div class="col-md-10">
-      {% if productos %}
-      <h1 class="text-center">Productos disponibles</h1>
+      <h1 class="text-center">Productos pendientes por pedir</h1>
+      {% if productosPorPedir %}
+      <div class="table-responsive text-center">
+        <table class="table table-striped text-center">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Precio</th>
+              <th>Cada cuántos días se debe pedir</th>
+              <th>Cantidad de productos por orden</th>
+              <th>Último Pedido</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for productoPorPedir in productosPorPedir %}
+            <tr>
+              <td>{{ productoPorPedir.nombre }}</td>
+              <td>{{ productoPorPedir.precio }}</td>
+              <td>{{ productoPorPedir.cadaCuantosDias }}</td>
+              <td>{{ productoPorPedir.cantidadPorOrden }}</td>
+              <td>{{ productoPorPedir.ultimoPedido }}</td>
+              <td>
+                <a
+                  href="{% url 'producto' productoPorPedir.id %}"
+                  class="btn btn-light"
+                  >Ver detalle</a
+                >
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="alert alert-warning text-center" role="alert">
+        ¡Estás al día ☀️, no tienes productos pendientes por pedir!
+      </div>
+      {% endif %} {% if productos %}
+      <h1 class="text-center">Productos</h1>
       <div class="table-responsive text-center">
         <table class="table table-striped text-center">
           <thead>
@@ -36,7 +74,7 @@
       </div>
       {% else %}
       <div class="alert alert-warning text-center" role="alert">
-        No hay productos disponibles
+        ¡Estás al día ☀️, no tienes productos pendientes por pedir!
       </div>
       {% endif %}
     </div>

@@ -1,0 +1,57 @@
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <div class="row justify-content-center align-items-center">
+    <div class="col-md-10">
+      {% if productos %}
+      <h1 class="text-center">Productos</h1>
+      <div class="table-responsive text-center">
+        <table class="table table-striped text-center">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Precio</th>
+              <th>Descripción</th>
+              <th>Proveedor</th>
+              <th>Días entre pedidos</th>
+              <th>Cantidad por orden</th>
+              <th>Fecha de registro</th>
+              <th>Usuario Asignado</th>
+              <th>Último Pedido</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for producto in productos %}
+            <tr>
+              <td>{{ producto.nombre }}</td>
+              <td>{{ producto.precio }}</td>
+              <td>{{ producto.descripcion }}</td>
+              <td>{{ producto.proveedor.nombre }}</td>
+              <td>{{ producto.cadaCuantosDias }}</td>
+              <td>{{ producto.cantidadPorOrden }}</td>
+              <td>{{ producto.fecha_registro }}</td>
+              <td>{{ producto.userAsignado.username }}</td>
+              <td>{{ producto.ultimoPedido }}</td>
+              <td>
+                <a href="{% url 'producto' producto.id %}" class="btn btn-light"
+                  >Ver detalle</a
+                >
+              </td>
+            </tr>
+
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="alert alert-warning text-center" role="alert">
+        No hay productos disponibles
+      </div>
+      {% endif %}
+      <a href="{% url 'nuevoProducto' %}" class="btn btn-primary"
+        >Crear producto</a
+      >
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -10,9 +10,21 @@ class Proveedor(models.Model):
     ciudad = models.CharField(max_length=50)
     telefono = models.CharField(max_length=50)
     email = models.CharField(max_length=50)
+    userAsignado = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
 
     def __str__(self):
         return (f"{self.nombre} - {self.email} - {self.telefono}")
+
+
+# class UserProfile(models.Model):
+#     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+#     telefono = models.CharField(max_length=50)
+#     direccion = models.CharField(max_length=50)
+#     ciudad = models.CharField(max_length=50)
+#     pais = models.CharField(max_length=50)
+
+#     def __str__(self):
+#         return self.user.username
 
 
 class Producto(models.Model):

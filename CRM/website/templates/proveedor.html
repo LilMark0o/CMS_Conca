@@ -1,0 +1,44 @@
+{% extends "base.html" %} {% block content %} {% include "volverProv.html" %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <div class="card text-center">
+        <div class="card-header"><b>{{ proveedor.nombre }}</b></div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">Dirección: {{ proveedor.direccion }}</li>
+          <li class="list-group-item">Ciudad: {{ proveedor.ciudad }}</li>
+          <li class="list-group-item">Teléfono: {{ proveedor.telefono }}</li>
+          <li class="list-group-item">Email: {{ proveedor.email }}</li>
+        </ul>
+      </div>
+      <div class="mt-3">
+        <form
+          action="{% url 'borrarProveedor' proveedor.id %}"
+          method="post"
+          style="display: inline-block"
+        >
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">Borrar Proveedor</button>
+        </form>
+        <form
+          action="{% url 'duplicarProveedor' proveedor.id %}"
+          method="post"
+          style="display: inline-block"
+        >
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary">
+            Duplicar Proveedor
+          </button>
+        </form>
+
+        <a
+          href="{% url 'editarProveedor' proveedor.id %}"
+          class="btn btn-light"
+        >
+          Editar Proveedor
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

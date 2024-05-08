@@ -1,0 +1,50 @@
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <div class="row justify-content-center align-items-center">
+    <div class="col-md-10">
+      {% if proveedores %}
+      <h1 class="text-center">Proveedores</h1>
+      <div class="table-responsive text-center">
+        <table class="table table-striped text-center">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Dirección</th>
+              <th>Ciudad</th>
+              <th>Teléfono</th>
+              <th>Email</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for proveedor in proveedores %}
+            <tr>
+              <td>{{ proveedor.nombre }}</td>
+              <td>{{ proveedor.direccion }}</td>
+              <td>{{ proveedor.ciudad }}</td>
+              <td>{{ proveedor.telefono }}</td>
+              <td>{{ proveedor.email }}</td>
+              <td>
+                <a
+                  href="{% url 'proveedor' proveedor.id %}"
+                  class="btn btn-light"
+                  >Ver detalle</a
+                >
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="alert alert-warning text-center" role="alert">
+        No hay proveedores disponibles
+      </div>
+      {% endif %}
+      <a href="{% url 'nuevoProveedor'%}" class="btn btn-primary"
+        >Crear proveedor</a
+      >
+    </div>
+  </div>
+</div>
+{% endblock %}
