@@ -52,3 +52,8 @@ class Notificaciones(models.Model):
 
     def __str__(self):
         return (f"{self.fecha} - {self.mensaje}")
+
+
+class ImportantStuff(models.Model):
+    account_sid = models.CharField(max_length=50)
+    auth_token = models.CharField(max_length=50)

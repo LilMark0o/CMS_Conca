@@ -1,4 +1,4 @@
-from .models import Notificaciones, Producto, HistorialPedidos
+from .models import ImportantStuff, Notificaciones, Producto, HistorialPedidos
 from django.shortcuts import render, redirect
 import datetime
 from django.shortcuts import redirect, render
@@ -143,8 +143,11 @@ def pedirProducto(request, pk):
 
 
 def sendWhatsapp(user, producto):
-    account_sid = 'ACc73bf418b9f02cb52e76da46813005e4'
-    auth_token = '59ca98923bfeb28dba728a1a140596f0'
+    important = ImportantStuff.objects.get(id=1)
+    account_sid = important.account_sid
+    auth_token = important.auth_token
+    print(account_sid)
+    print(auth_token)
 
     try:
         client = Client(account_sid, auth_token)
@@ -158,8 +161,8 @@ def sendWhatsapp(user, producto):
         historial.save()
 
         # Escribe el mensaje que deseas enviar
-        publicIp = '34.29.188.112:8080'
-        publicIp = '127.0.0.1:8000'
+        publicIp = '34.67.1.244:8080'
+        # publicIp = '127.0.0.1:8000'
         link = f"http://{publicIp}/confirmarProducto/{historial.id}"
 
         mensaje = f"El cliente {user.first_name} ha pedido el producto {producto.nombre}. El cliente necesita {producto.cantidadPorOrden} unidades, dado que ya pasaron {producto.cadaCuantosDias} días del último pedido.\nConfirme el pedido aquí:\n{link} "
