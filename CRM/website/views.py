@@ -144,13 +144,13 @@ def pedirProducto(request, pk):
 
 def sendWhatsapp(user, producto):
     important = ImportantStuff.objects.get(id=1)
-    account_sid = important.account_sid
-    auth_token = important.auth_token
-    print(account_sid)
-    print(auth_token)
+    a = important.account_sid
+    b = important.auth_token
+    print(a)
+    print(b)
 
     try:
-        client = Client(account_sid, auth_token)
+        client = Client(a, b)
         # Define el número de teléfono de destino (con el prefijo internacional)
         numero = '3214330135'
 
