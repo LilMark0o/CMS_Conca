@@ -2,126 +2,126 @@
 <div class="container">
   <div class="row justify-content-center align-items-center">
     <div class="col-md-10">
-      {%if course_list%}
-      <h1 class="text-center">Porcentajes de pedidos por producto</h1>
-      {%include "graph.html"%}
-      
-      {%endif%}
-      {% if productosPorPedir %}
-      <h1 class="text-center">Productos pendientes por pedir</h1>
-      <div class="table-responsive text-center">
-        <table class="table table-striped text-center">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Precio</th>
-              <th>Cada cuántos días se debe pedir</th>
-              <th>Cantidad de productos por orden</th>
-              <th>Último Pedido</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for productoPorPedir in productosPorPedir %}
-            <tr>
-              <td>{{ productoPorPedir.nombre }}</td>
-              <td>{{ productoPorPedir.precio }}</td>
-              <td>{{ productoPorPedir.cadaCuantosDias }}</td>
-              <td>{{ productoPorPedir.cantidadPorOrden }}</td>
-              <td>{{ productoPorPedir.ultimoPedido }}</td>
-              <td>
-                <a
-                  href="{% url 'producto' productoPorPedir.id %}"
-                  class="btn btn-light"
-                  >Ver detalle</a
-                >
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      {% else %} {% if productos %}
-      <h1 class="text-center">Productos pendientes por pedir</h1>
+          
+ {%if course_list%}
+        <h1 class="text-center">Porcentajes de pedidos por producto</h1>
+        {%include "graph.html"%} {%endif%} {% if productosPorPedir %}
+        <h1 class="text-center">Productos pendientes por pedir</h1>
+        <div class="table-responsive text-center">
+          <table class="table table-striped text-center">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Cada cuántos días se debe pedir</th>
+                <th>Cantidad de productos por orden</th>
+                <th>Último Pedido</th>
+                <th>Pedir</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for productoPorPedir in productosPorPedir %}
+              <tr>
+                <td>{{ productoPorPedir.nombre }}</td>
+                <td>{{ productoPorPedir.precio }}</td>
+                <td>{{ productoPorPedir.cadaCuantosDias }}</td>
+                <td>{{ productoPorPedir.cantidadPorOrden }}</td>
+                <td>{{ productoPorPedir.ultimoPedido }}</td>
+                <td>
+                  <a
+                    href="{% url 'pedirProducto' productoPorPedir.id %}"
+                    class="btn btn-light"
+                    >Pedir</a
+                  >
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %} {% if productos %}
+        <h1 class="text-center">Productos pendientes por pedir</h1>
 
-      <div class="alert alert-warning text-center" role="alert">
-        ¡Estás al día ☀️, no tienes productos pendientes por pedir!
-      </div>
+        <div class="alert alert-warning text-center" role="alert">
+          ¡Estás al día ☀️, no tienes productos pendientes por pedir!
+        </div>
 
-      {% endif %}{% endif %}
-      <h1 class="text-center">Productos</h1>
-      {% if productos %}
-      <div class="table-responsive text-center">
-        <table class="table table-striped text-center">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Precio</th>
-              <th>Cada cuántos días se debe pedir</th>
-              <th>Cantidad de productos por orden</th>
-              <th>Último Pedido</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for producto in productos %}
-            <tr>
-              <td>{{ producto.nombre }}</td>
-              <td>{{ producto.precio }}</td>
-              <td>{{ producto.cadaCuantosDias }}</td>
-              <td>{{ producto.cantidadPorOrden }}</td>
-              <td>{{ producto.ultimoPedido }}</td>
-              <td>
-                <a href="{% url 'producto' producto.id %}" class="btn btn-light"
-                  >Ver detalle</a
-                >
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      {% else %}
-      <div class="alert alert-warning text-center" role="alert">
-        No tienes productos registrados, ¡agrega uno!
-      </div>
-      <div class="text-center">
-        <!-- Wrap the button in a div with text-center class -->
-        <a href="{% url 'nuevoProducto' %}" class="btn btn-primary"
-          >Crear producto</a
-        >
-      </div>
-      {% endif %}
-      <h1 class="text-center">Proveedores</h1>
-      {% if proveedores %}
-      <div class="table-responsive text-center">
-        <table class="table table-striped text-center">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Correo</th>
-              <th>Teléfono</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for proveedor in proveedores %}
-            <tr>
-              <td>{{ proveedor.nombre }}</td>
-              <td>{{ proveedor.email }}</td>
-              <td>{{ proveedor.telefono }}</td>
-              <td>
-                <a
-                  href="{% url 'proveedor' proveedor.id %}"
-                  class="btn btn-light"
-                  >Ver detalle</a
-                >
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+        {% endif %}{% endif %}
+        <h1 class="text-center">Productos</h1>
+        {% if productos %}
+        <div class="table-responsive text-center">
+          <table class="table table-striped text-center">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Cada cuántos días se debe pedir</th>
+                <th>Cantidad de productos por orden</th>
+                <th>Último Pedido</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for producto in productos %}
+              <tr>
+                <td>{{ producto.nombre }}</td>
+                <td>{{ producto.precio }}</td>
+                <td>{{ producto.cadaCuantosDias }}</td>
+                <td>{{ producto.cantidadPorOrden }}</td>
+                <td>{{ producto.ultimoPedido }}</td>
+                <td>
+                  <a
+                    href="{% url 'producto' producto.id %}"
+                    class="btn btn-light"
+                    >Ver detalle</a
+                  >
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="alert alert-warning text-center" role="alert">
+          No tienes productos registrados, ¡agrega uno!
+        </div>
+        <div class="text-center">
+          <!-- Wrap the button in a div with text-center class -->
+          <a href="{% url 'nuevoProducto' %}" class="btn btn-primary"
+            >Crear producto</a
+          >
+        </div>
+        {% endif %}
+        <h1 class="text-center">Proveedores</h1>
+        {% if proveedores %}
+        <div class="table-responsive text-center">
+          <table class="table table-striped text-center">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Teléfono</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for proveedor in proveedores %}
+              <tr>
+                <td>{{ proveedor.nombre }}</td>
+                <td>{{ proveedor.email }}</td>
+                <td>{{ proveedor.telefono }}</td>
+                <td>
+                  <a
+                    href="{% url 'proveedor' proveedor.id %}"
+                    class="btn btn-light"
+                    >Ver detalle</a
+                  >
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
         {% else %}
         <div class="alert alert-warning text-center" role="alert">
           No tienes proveedores registrados, ¡agrega uno!

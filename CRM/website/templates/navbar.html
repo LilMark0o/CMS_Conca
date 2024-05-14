@@ -41,6 +41,36 @@
           <a class="nav-link" href="{% url 'logout' %}">Logout</a>
         </li>
       </ul>
+      <!-- Botón de notificaciones movido a la derecha -->
+      {%if user.is_authenticated%}
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            href="{%url 'notificaciones'%}"
+            id="notificaciones-btn"
+          >
+            {%if notificacionesNuevas%}
+            <img
+              src="/static/media/notificacionesActivas.png"
+              alt="Notificaciones"
+              width="25"
+              height="25"
+              class="d-inline-block align-text-top"
+            />
+            {%else%}
+            <img
+              src="/static/media/notificaciones.png"
+              alt="Notificaciones"
+              width="25"
+              height="25"
+              class="d-inline-block align-text-top"
+            />
+            {%endif%}
+          </a>
+        </li>
+      </ul>
+      {%endif%}
     </div>
   </div>
 </nav>

@@ -1,0 +1,43 @@
+{% extends "base.html" %} {% block content %}
+<div class="container">
+    <div class="col-md-8 offset-md-2">
+  {% if historial %} {% if not historial.notificado %}
+  <h1>¡Tienes un nuevo pedido!</h1>
+  <p>
+    El cliente <b>{{ user.first_name }}</b> te ha pedido a ti,
+    <b>{{ proveedor.nombre }}</b>, el producto
+    <b>{{ historial.producto.nombre }}</b>. ¿Puedes suplir este producto?
+  </p>
+  <h3>Detalles del pedido:</h3>
+  <p>Nombre del producto: {{ historial.producto.nombre }}</p>
+  <p>Descripción: {{ historial.producto.descripcion }}</p>
+  <p>Precio: ${{ historial.producto.precio }}</p>
+  <p>Cantidad: {{ historial.cantidad }}</p>
+  <div class="mt-3">
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="pedido" value="confirmado" />
+      <button type="submit" class="btn btn-success my-2">Aceptar pedido</button>
+    </form>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="pedido" value="rechazado" />
+      <button type="submit" class="btn btn-danger my-2">Rechazar pedido</button>
+    </form>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="pedido" value="pendiente" />
+      <button type="submit" class="btn btn-warning my-2">
+        Poner en espera el pedido
+      </button>
+    </form>
+</div>
+</div>
+    {% else %}
+    <h1>El link ya ha sido notificado</h1>
+    {% endif %} {% else %}
+    <h1>El link no está disponible en este momento</h1>
+    {% endif %}
+  </div>
+  {% endblock %}
+</div>

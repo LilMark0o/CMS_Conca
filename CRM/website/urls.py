@@ -21,5 +21,8 @@ urlpatterns = [
     path('duplicarProveedor/<int:pk>',
          views.duplicarProveedor, name='duplicarProveedor'),
     path('editarProveedor/<int:pk>', views.editarProveedor, name='editarProveedor'),
-    path('students/', views.pedidosGraph, name='students'),
+    path('confirmarProducto/<int:pk>',
+         views.confirmarProducto, name='confirmarProducto'),
+    path('notificaciones/', views.notificaciones, name='notificaciones'),
+
 ]

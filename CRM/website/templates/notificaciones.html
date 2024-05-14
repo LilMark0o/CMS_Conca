@@ -1,0 +1,56 @@
+{% extends "base.html" %} 
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      {% if notificacionesNuevas %}
+      <h1>Notificaciones nuevas</h1>
+      <div class="row">
+        {% for notificacionNueva in notificacionesNuevas %}
+        <div class="col-md-12">
+            {% if notificacionNueva.estadoPedido == "Confirmado" %}
+          <div class="alert alert-success d-flex align-items-center" role="alert">
+            {% elif notificacionNueva.estadoPedido == "Rechazado" %}
+            <div class="alert alert-danger d-flex align-items-center" role="alert">
+                {% elif notificacionNueva.estadoPedido == "Pendiente" %}
+            <div class="alert alert-warning d-flex align-items-center" role="alert">
+            {% else %}
+            <div class="alert alert-secondary d-flex align-items-center" role="alert">
+            {% endif %}
+            
+            </svg>
+            <div>
+              <p>{{ notificacionNueva.fecha }}</p>
+              <p>{{ notificacionNueva.mensaje }}</p>
+              <p>{{ notificacionNueva.leido }}</p>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% if notificaciones %}
+      <h1>Notificaciones</h1>
+      <div class="row">
+        {% for notificacion in notificaciones %}
+        <div class="col-md-12">
+          <div class="alert alert-secondary d-flex align-items-center" role="alert">
+            
+            </svg>
+            <div>
+              <p>{{ notificacion.fecha }}</p>
+              <p>{{ notificacion.mensaje }}</p>
+              <p>{{ notificacion.leido }}</p>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% if not notificacionesNuevas and not notificaciones %}
+      <h1>¡Estás al día ☀️, no tienes notificaciones!</h1>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

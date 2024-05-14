@@ -32,11 +32,23 @@ class Producto(models.Model):
         return self.nombre
 
 
-class historialPedidos(models.Model):
+class HistorialPedidos(models.Model):
     fecha = models.DateField()
     cantidad = models.IntegerField()
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     userAsignado = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
+    notificado = models.BooleanField(default=False)
 
     def __str__(self):
         return (f"{self.fecha} - {self.cantidad} - {self.producto}")
+
+
+class Notificaciones(models.Model):
+    fecha = models.DateField()
+    mensaje = models.CharField(max_length=50)
+    userAsignado = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
+    mostrado = models.BooleanField(default=False)
+    estadoPedido = models.CharField(max_length=50, default="Rechazado")
+
+    def __str__(self):
+        return (f"{self.fecha} - {self.mensaje}")

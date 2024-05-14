@@ -1,4 +1,4 @@
-from .models import Producto, historialPedidos
+from .models import Notificaciones, Producto, HistorialPedidos
 from django.shortcuts import render, redirect
 import datetime
 from django.shortcuts import redirect, render
@@ -8,6 +8,7 @@ from django.contrib import messages
 from .models import Proveedor, Producto
 from django.core.mail import send_mail
 from django.conf import settings
+from twilio.rest import Client
 
 # Create your views here.
 
@@ -29,7 +30,7 @@ def home(request):
         # Fetch only the products where userAsignado is the current user
         productos = Producto.objects.filter(userAsignado=request.user)
         proveedores = Proveedor.objects.filter(userAsignado=request.user)
-        historial = historialPedidos.objects.filter(
+        historial = HistorialPedidos.objects.filter(
             userAsignado=request.user).order_by('-fecha')
         productosPorPedir = []
 
@@ -45,8 +46,13 @@ def home(request):
                 if diferencia.days > producto.cadaCuantosDias:
                     productosPorPedir.append(producto)
         pedidos = pedidosGraph(request)
+        notificaciones = Notificaciones.objects.filter(
+            userAsignado=user, mostrado=False)
         contextForNow = {'productos': productos, 'proveedores': proveedores,
                          'productosPorPedir': productosPorPedir, 'historial': historial}
+        if len(notificaciones) > 0:
+            contextForNow['notificacionesNuevas'] = notificaciones
+
         if len(pedidos) > 0:
             contextForNow.update(pedidos)
         return render(request, 'home.html', contextForNow)
@@ -64,15 +70,10 @@ def logout_user(request):
 def register_user(request):
     if request.method == 'POST':
         username = request.POST.get('username', '')
-        print("Username: ", username)
         password = request.POST.get('password1', '')
-        print("Password: ", password)
         password2 = request.POST.get('password2', '')
-        print("Password2: ", password2)
         email = request.POST.get('email', '')
-        print("Email: ", email)
         name = request.POST.get('name', '')
-        print("Name: ", name)
         if password == password2:
             if User.objects.filter(username=username).exists():
                 messages.error(request, 'Ese nombre de usuario ya está en uso')
@@ -123,14 +124,11 @@ def pedirProducto(request, pk):
         user = request.user
         producto = Producto.objects.get(id=pk)
         if user == producto.userAsignado:
-            sent = sendEmail(user, producto)
+            sent = sendWhatsapp(user, producto)
             if sent:
-                messages.success(request, 'Producto pedido exitosamente')
                 producto.ultimoPedido = datetime.datetime.now()
                 producto.save()
-                historial = historialPedidos.objects.create(
-                    fecha=datetime.datetime.now(), cantidad=producto.cantidadPorOrden, producto=producto, userAsignado=user)
-                historial.save()
+                messages.success(request, 'Producto pedido exitosamente')
                 return redirect('home')
             else:
                 messages.error(request, 'No se pudo enviar el correo')
@@ -144,22 +142,99 @@ def pedirProducto(request, pk):
         return redirect('home')
 
 
-def sendEmail(user, producto):
+def sendWhatsapp(user, producto):
+    account_sid = 'ACc73bf418b9f02cb52e76da46813005e4'
+    auth_token = '59ca98923bfeb28dba728a1a140596f0'
+
     try:
-        subject = f"Pedido de {producto.nombre}"
-        message = f"El cliente {user.first_name} ha pedido el producto {producto.nombre}. El cliente necesita {producto.cantidadPorOrden} unidades, dado que ya pasaron {producto.cadaCuantosDias} días del último pedido."
-        reciever = producto.proveedor.email
-        send_mail(
-            subject,
-            message,
-            settings.EMAIL_HOST_USER,
-            [reciever, 'ma.ramirez23@uniandes.edu.co'],
-            fail_silently=False,
+        client = Client(account_sid, auth_token)
+        # Define el número de teléfono de destino (con el prefijo internacional)
+        numero = '3214330135'
+
+        numero_telefono = f"whatsapp:+57{numero}"
+        historial = HistorialPedidos.objects.create(
+            fecha=datetime.datetime.now(), cantidad=producto.cantidadPorOrden, producto=producto, userAsignado=user)
+
+        historial.save()
+
+        # Escribe el mensaje que deseas enviar
+        publicIp = '34.29.188.112:8080'
+        publicIp = '127.0.0.1:8000'
+        link = f"http://{publicIp}/confirmarProducto/{historial.id}"
+
+        mensaje = f"El cliente {user.first_name} ha pedido el producto {producto.nombre}. El cliente necesita {producto.cantidadPorOrden} unidades, dado que ya pasaron {producto.cadaCuantosDias} días del último pedido.\nConfirme el pedido aquí:\n{link} "
+        message = client.messages.create(
+            from_='whatsapp:+14155238886',
+            body=mensaje,
+            to=numero_telefono
         )
+        print(message.sid)
+
         return True
     except Exception as e:
         print(e)
         return False
+
+
+def notificaciones(request):
+    user = request.user
+    notificacionesNuevas = Notificaciones.objects.filter(
+        userAsignado=user, mostrado=False)
+    notificaciones = Notificaciones.objects.filter(
+        userAsignado=user, mostrado=True)
+    for notificacion in notificacionesNuevas:
+        notificacion.mostrado = True
+        notificacion.save()
+
+    return render(request, 'notificaciones.html', {'notificaciones': notificaciones, 'notificacionesNuevas': notificacionesNuevas})
+
+
+def confirmarProducto(request, pk):
+    try:
+        historial = HistorialPedidos.objects.get(id=pk)
+    except HistorialPedidos.DoesNotExist:
+        messages.error(request, 'No existe ese pedido')
+        return redirect('home')
+    user = historial.userAsignado
+    if request.method == 'POST':
+        estadoPedido = request.POST['pedido']
+        historial.notificado = True
+        historial.save()
+        if estadoPedido == 'confirmado':
+            notificacion = Notificaciones.objects.create(
+                fecha=datetime.datetime.now(),
+                mensaje=f"El pedido de {historial.producto.nombre} ha sido confirmado por el proveedor {historial.producto.proveedor.nombre}",
+                userAsignado=user,
+                estadoPedido='Confirmado'
+            )
+            notificacion.save()
+            messages.success(request, 'Pedido confirmado exitosamente')
+        elif estadoPedido == 'rechazado':
+            notificacion = Notificaciones.objects.create(
+                fecha=datetime.datetime.now(),
+                mensaje=f"El pedido de {historial.producto.nombre} ha sido rechazado por el proveedor {historial.producto.proveedor.nombre}",
+                userAsignado=user,
+                estadoPedido='Rechazado'
+            )
+            notificacion.save()
+            messages.success(request, 'Pedido rechazado exitosamente')
+        elif estadoPedido == 'pendiente':
+            notificacion = Notificaciones.objects.create(
+                fecha=datetime.datetime.now(),
+                mensaje=f"El pedido de {historial.producto.nombre} ha sido puesto en pendiente por el proveedor {historial.producto.proveedor.nombre}",
+                userAsignado=user,
+                estadoPedido='Pendiente'
+            )
+            notificacion.save()
+            messages.success(
+                request, 'Pedido puesto en pendiente exitosamente')
+        else:
+            messages.error(request, 'Estado de pedido inválido')
+        return redirect('home')
+    else:
+        context = {'historial': historial, 'user': user,
+                   'proveedor': historial.producto.proveedor}
+        return render(request, 'confirmarProducto.html', context)
 
 
 def borrarPedido(request, pk):
@@ -235,7 +310,6 @@ def duplicarProveedor(request, pk):
 
 
 def editarPedido(request, pk):
-    print("Editing producto")
     if request.user.is_authenticated:
         user = request.user
         producto = Producto.objects.get(id=pk)
@@ -294,7 +368,6 @@ def nuevoPedido(request):
     if request.user.is_authenticated:
         user = request.user
         proveedores = Proveedor.objects.filter(userAsignado=user)
-        print(len(proveedores))
         if request.method == 'POST':
             nombre = request.POST['nombre']
             precio = request.POST['precio']
@@ -394,7 +467,7 @@ def nuevoProveedor(request):
 
 def pedidosGraph(request):
     user = request.user
-    historial = historialPedidos.objects.filter(
+    historial = HistorialPedidos.objects.filter(
         userAsignado=user).order_by('-fecha')
     pedidosList = []
     pedidosDict = {}
@@ -419,5 +492,3 @@ def pedidosGraph(request):
         return {}
     else:
         return context
-
-    return render(request, 'officer_home.html', context)
