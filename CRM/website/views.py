@@ -143,8 +143,9 @@ def pedirProducto(request, pk):
 
 
 def sendWhatsapp(user, producto):
-    a = "ACc73bf418b9f02cb52e76da46813005e4"
-    b = "59ca98923bfeb28dba728a1a140596f0"
+    important = ImportantStuff.objects.get(id=1)
+    a = important.account_sid
+    b = important.auth_token
 
     try:
         client = Client(a, b)
