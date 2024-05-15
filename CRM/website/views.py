@@ -159,7 +159,7 @@ def sendWhatsapp(user, producto):
         historial.save()
 
         # Escribe el mensaje que deseas enviar
-        publicIp = '34.67.1.244:8080'
+        publicIp = '34.134.55.105:8080'
         # publicIp = '127.0.0.1:8000'
         link = f"http://{publicIp}/confirmarProducto/{historial.id}"
 
