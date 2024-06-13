@@ -31,8 +31,8 @@ Proveo is a web application designed to help store owners keep track of their in
 ### Steps
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/your-username/proveo.git
-   cd proveo
+   git clone https://github.com/LilMark0o/Proveo
+   cd Proveo
    ```
 
 2. **Create a Virtual Environment**
